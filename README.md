@@ -46,21 +46,12 @@ cd social-profile-finder
 pip install -r requirements.txt
 ```
 
-> Make sure your `requirements.txt` includes:
-```text
-streamlit
-pandas
-requests
-```
-
 3. **Set your SerpAPI key:**
 
 The API key is hardcoded in `app.py`:
 ```python
 SERPAPI_KEY = "your_serpapi_key_here"
 ```
-
-> You can improve security by loading it from a `.env` file or Streamlit secrets instead.
 
 ---
 
@@ -94,20 +85,3 @@ Your CSV should have the following structure:
 - The app supports exporting results in CSV format with all found profiles.
 
 ---
-
-## 📸 Screenshots
-
-> _Coming soon — or add your own!_
-
----
-
-## 📜 License
-
-MIT License. See `LICENSE` for details.
-
----
-
-## 🙋‍♂️ Author
-
-Utkarsh Narayan Pandey  
-> [LinkedIn](https://linkedin.com/in/utkarshnarayanpandey) | [GitHub](https://github.com/utkarshnpatel)
