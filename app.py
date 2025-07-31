@@ -12,8 +12,8 @@ st.set_page_config(
     layout="wide"
 )
 
-# Store your SerpAPI key here
-SERPAPI_KEY = "5698f6ba6f17f7bbbaadc795d500668520f4185c8dfccb07d34bfd4779eb1523"  # <-- Replace with your actual key
+# Storing SerpAPI key here
+SERPAPI_KEY = "5698f6ba6f17f7bbbaadc795d500668520f4185c8dfccb07d34bfd4779eb1523"  
 
 # Initialize session state
 if 'results_df' not in st.session_state:
