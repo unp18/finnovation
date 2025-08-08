@@ -3,6 +3,11 @@ import pandas as pd
 import requests
 import urllib.parse
 import time
+from sentence_transformers import SentenceTransformer
+from transformers import CLIPProcessor, CLIPModel
+from sklearn.metrics.pairwise import cosine_similarity
+from PIL import Image
+import torch
 from io import StringIO
 
 # Page configuration
@@ -55,6 +60,52 @@ def find_social_profiles(name, city=None, email=None):
     except Exception as e:
         st.error(f"Error searching for {name}: {str(e)}")
         return []
+from sentence_transformers import SentenceTransformer
+from transformers import CLIPProcessor, CLIPModel
+from sklearn.metrics.pairwise import cosine_similarity
+from PIL import Image
+import torch
+import pandas as pd
+
+def compute_similarity_scores(name, city, email, image_path=None, df=None):
+
+    text_model = SentenceTransformer("all-MiniLM-L6-v2")
+    clip_model = CLIPModel.from_pretrained("openai/clip-vit-base-patch32")
+    clip_processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
+
+    actual_text = f"Name: {name}, City: {city if city else 'N/A'}, Email: {email if email else 'N/A'}"
+    actual_text_embedding = text_model.encode([actual_text], normalize_embeddings=True)
+
+    df['text'] = df.apply(lambda row: f"Name: {row['Name']}, City: {row['City']}, Email: {row['Email']}", axis=1)
+    profile_embeddings = text_model.encode(df['text'].tolist(), normalize_embeddings=True)
+    df['text_score'] = cosine_similarity(actual_text_embedding, profile_embeddings)[0]
+
+    def get_image_embedding(img_path):
+        try:
+            image = Image.open(img_path).convert("RGB")
+            inputs = clip_processor(images=image, return_tensors="pt")
+            with torch.no_grad():
+                img_features = clip_model.get_image_features(**inputs)
+            return img_features / img_features.norm(p=2, dim=-1, keepdim=True)
+        except Exception as e:
+            print(f"Failed to embed image {img_path}: {e}")
+            return torch.zeros((1, 512))
+
+    actual_image_embedding = get_image_embedding(image_path) if image_path else None
+
+    image_scores = []
+    if actual_image_embedding is not None and "Photo" in df.columns:
+        for path in df["Photo"]:
+            profile_embedding = get_image_embedding(path)
+            score = torch.nn.functional.cosine_similarity(actual_image_embedding, profile_embedding).item()
+            image_scores.append(score)
+        df["image_score"] = image_scores
+    else:
+        df["image_score"] = 0.0
+
+    df["final_score"] = 0.6 * df["text_score"] + 0.4 * df["image_score"]
+
+    return df.sort_values(by="final_score", ascending=False)
 
 def process_single_search(name, city, email):
     """Process a single person search"""
