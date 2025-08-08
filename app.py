@@ -60,13 +60,7 @@ def find_social_profiles(name, city=None, email=None):
     except Exception as e:
         st.error(f"Error searching for {name}: {str(e)}")
         return []
-from sentence_transformers import SentenceTransformer
-from transformers import CLIPProcessor, CLIPModel
-from sklearn.metrics.pairwise import cosine_similarity
-from PIL import Image
-import torch
-import pandas as pd
-
+        
 def compute_similarity_scores(name, city, email, image_path=None, df=None):
 
     text_model = SentenceTransformer("all-MiniLM-L6-v2")
